@@ -9,10 +9,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
     /*Using Room to instead of SQLite*/
     private final String CREATE_MEMO_TABLE = "create table memo("
-            +"id int primary key autoincrement,"
-            +"date int,"
+            +"id integer primary key autoincrement,"
+            +"date integer,"
             +"type text,"
-            +"content text)";
+            +"content text,"
+            +"time integer)";
 
     public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);

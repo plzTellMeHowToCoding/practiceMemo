@@ -26,11 +26,12 @@ public class CreateMemoPageActivity extends AppCompatActivity {
     private EditText input_memo;
     private static String str_create_page_memo_name;
     private static final String TAG = "CreateMemoPageActivity";
-    private DBHelper mDBHelper = new DBHelper(CreateMemoPageActivity.this,"Memo.db",null,1);
+    private DBHelper mDBHelper;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_memo_page);
+        mDBHelper = new DBHelper(this,"Memo.db",null,1);
         initViews();
     }
 
@@ -39,15 +40,23 @@ public class CreateMemoPageActivity extends AppCompatActivity {
         ContentValues contentValues = new ContentValues();
         Calendar calendar = Calendar.getInstance();
         Date d = calendar.getTime();
-        String s = DateFormatter.dateToInt(d);
-        Log.d(TAG, "@@@@time = "+d.toString());
+        String s = DateFormatter.dateToString(d);
+        Log.d(TAG, "@@@@date = "+d.toString());
         //insert date
         contentValues.put("date",DateFormatter.strDateToInt(s));
         //insert content
         contentValues.put("content",input_memo.getText().toString());
         //insert type
         contentValues.put("type","書寫");
+        //insert time
+        String t = DateFormatter.dateToTime(d);
+        contentValues.put("time",DateFormatter.strDateToTime(t));
         sqLiteDatabase.insert("memo",null,contentValues);
+        //將資料儲存於DB後將新增的資料添加到MemolistActivity中的list，以便在finish當前activity回到MemolistActivity時
+        //由於Recycler view中的list有新增資料，故在MemolistActivity中Restart()可使用MemolistActivity中的RecyclerView Adapter提供的
+        //notifyItemInserted方法通知有哪筆資料加入
+        MemolistActivity.addDataToList(new Memo(DateFormatter.strDateToInt(s),DateFormatter.strDateToTime(t),
+                "書寫",input_memo.getText().toString()));
     }
 
     private void initViews(){
@@ -64,6 +73,7 @@ public class CreateMemoPageActivity extends AppCompatActivity {
                 if (input_memo.getText().toString().length() > 0) {
                     saveMemo();
                     Toast.makeText(CreateMemoPageActivity.this, "儲存成功", Toast.LENGTH_LONG).show();
+                    finish();
                 }
             }
         });
